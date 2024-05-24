@@ -1,0 +1,21 @@
+.card {
+    width: 300px;
+    transition:
+      transform 150ms ease,
+      box-shadow 150ms ease;
+  
+    &:hover {
+      transform: scale(1.01);
+      box-shadow: var(--mantine-shadow-md);
+    }
+    text-decoration: none;
+  }
+  
+  .title {
+    font-family: 'Greycliff CF', var(--mantine-font-family);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+  }
+  
