@@ -3,7 +3,7 @@ import "@mantine/core/styles.css";
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 import ProvideQueryClient from "./ProvideQueryClient";
 import { Notifications } from "@mantine/notifications";
-
+import { AuthProvider } from "./context/authContext";
 
 export const metadata = {
   title: "My Mantine app",
@@ -17,12 +17,14 @@ export default function RootLayout({ children }) {
         <ColorSchemeScript />
       </head>
       <body>
-        <ProvideQueryClient>
-          <MantineProvider>
-            <Notifications />
-            {children}
-          </MantineProvider>
-        </ProvideQueryClient>
+        <AuthProvider>
+          <ProvideQueryClient>
+            <MantineProvider>
+              <Notifications />
+              {children}
+            </MantineProvider>
+          </ProvideQueryClient>
+        </AuthProvider>
       </body>
     </html>
   );

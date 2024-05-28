@@ -18,16 +18,23 @@ import { submitData, updateData } from "@/app/api/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import { IconPencil } from "@tabler/icons-react";
+import { useAuthContext } from "@/app/context/authContext";
+import { useRouter } from "next/navigation";
 
 function CreateEditModal(props) {
   const { initialBody, initialTitle, id, initialImage } = props;
-  console.log(initialBody);
   const [opened, { open, close }] = useDisclosure(false);
   const [title, setTitle] = useState(initialTitle || "");
   const [body, setBody] = useState(initialBody || "");
   const [image, setImage] = useState(initialImage || null);
   const [base64, setBase64] = useState(initialImage || "");
+  const [error, setError] = useState("");
   const queryClient = useQueryClient();
+
+  const user = JSON.parse(window.localStorage.getItem("currentUser"));
+
+  const { isLoggedIn } = useAuthContext();
+  const router = useRouter();
 
   const { mutate: createMutate } = useMutation({
     mutationFn: submitData,
@@ -43,12 +50,7 @@ function CreateEditModal(props) {
       });
     },
     onError: () => {
-      console.log("error");
-      notifications.show({
-        title: "Error!",
-        message: "Failed to submit data",
-        color: "red",
-      });
+      setError("Failed to submit blog");
     },
   });
 
@@ -66,31 +68,33 @@ function CreateEditModal(props) {
       });
     },
     onError: () => {
-      console.log("error");
-      notifications.show({
-        title: "Error!",
-        message: "Failed to update blog",
-        color: "red",
-      });
+      setError("Failed to update blog");
     },
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title || !body || !base64) {
-      notifications.show({
-        title: "Error",
-        message: "Please fill all the fields",
-        color: "red",
-      });
+      setError("Please fill all the fields");
       return;
     }
 
     if (id) {
       updateMutate({ title, body, id, image: base64 });
     } else {
-      createMutate({ title, body, image: base64 });
+      // addPost(title, body, base64, "pending", user.id);
+      createMutate({
+        title,
+        body,
+        image: base64,
+        status: "pending",
+        userId: user.id,
+      });
     }
+    setTitle("");
+    setBody("");
+    setImage(null);
+    setBase64("");
   };
 
   const handleImageUpload = (file) => {
@@ -106,32 +110,30 @@ function CreateEditModal(props) {
 
   return (
     <div>
-      {opened && (
-        <Modal
-          opened={opened}
-          onClose={close}
-          title={id ? "Edit Blog" : "Create Blog"}
-          centered
-        >
+      <Modal
+        opened={opened}
+        onClose={close}
+        title={id ? "Edit Blog" : "Create Blog"}
+        centered
+      >
+        <form onSubmit={handleSubmit}>
           <TextInput
             label="Title"
             placeholder="Enter blog title"
             value={title}
             onChange={(e) => setTitle(e.currentTarget.value)}
           />
-
           <Textarea
             label="Body"
             placeholder="Enter blog body"
             value={body}
             onChange={(e) => setBody(e.currentTarget.value)}
           />
-
           {image && (
-            <Container my={"md"} py={"xs"} bg={"indigo"} pos={"relative"}>
+            <Container my={"md"} py={"xs"} pos={"relative"}>
               <CloseButton onClick={() => setImage(null)} />
               <Image
-                src={initialImage}
+                src={base64}
                 alt="Current Image"
                 width={100}
                 height={100}
@@ -148,27 +150,42 @@ function CreateEditModal(props) {
               onChange={handleImageUpload}
             />
           )}
-
-          <Button
-            color="blue"
-            fullWidth
-            mt="md"
-            radius="md"
-            onClick={handleSubmit}
-          >
+          <Button color="blue" fullWidth mt="md" radius="md" type="submit">
             {id ? "Update" : "Submit"}
           </Button>
-        </Modal>
-      )}
+          {error && <p style={{ color: "red" }}>{error}</p>}
+        </form>
+      </Modal>
+
       {id ? (
-        <ActionIcon variant="subtle" color="gray" onClick={open}>
+        <ActionIcon
+          variant="subtle"
+          color="gray"
+          onClick={() => {
+            if (!isLoggedIn) {
+              router.push("/login");
+              return;
+            }
+            open();
+          }}
+        >
           <IconPencil
             style={{ width: rem(16), height: rem(16) }}
             stroke={1.5}
           />
         </ActionIcon>
       ) : (
-        <Button onClick={open}>Create Blog</Button>
+        <Button
+          onClick={() => {
+            if (!isLoggedIn) {
+              router.push("/login");
+              return;
+            }
+            open();
+          }}
+        >
+          Create Blog
+        </Button>
       )}
     </div>
   );

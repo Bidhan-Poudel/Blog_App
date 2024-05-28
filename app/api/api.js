@@ -17,8 +17,7 @@ export async function getDataById(id) {
   return resposne;
 }
 
-export async function submitData({ title, body, image }) {
-  console.log(title,body,image);
+export async function submitData({ title, body, image, status, userId }) {
   const res = await fetch(API_URL, {
     method: 'POST',
     headers: {
@@ -27,7 +26,9 @@ export async function submitData({ title, body, image }) {
     body: JSON.stringify({
       title: title,
       body: body,
-      image:image
+      image:image,
+      status:status,
+      userId:userId
     })
   });
   if (!res.ok) {
@@ -36,7 +37,7 @@ export async function submitData({ title, body, image }) {
   return res.status;
 }
  
-export async function updateData({title,body,image,id}) {
+export async function updateData({title,body,image,id,status, userId}) {
   const res = await fetch(API_URL + id, {
     method: 'PUT',
     headers: {
@@ -45,7 +46,9 @@ export async function updateData({title,body,image,id}) {
     body: JSON.stringify({
       title: title,
       body: body,
-      image:image
+      image:image,
+      status:'pending',
+      userId:userId
     })
   });
   if (!res.ok) {
@@ -68,4 +71,23 @@ export async function deleteData(id) {
 }
 
 
-
+export async function verifyData(id) {
+  const res = await fetch(API_URL + id.id, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      title: id.title,
+      body: id.body,
+      image:id.image,
+      status:'verified',
+      userId:id.userId
+    })
+  });
+  if (!res.ok) {
+    throw new Error('Error updating list item');
+  }
+  console.log(res.status);
+  return res.status;
+}

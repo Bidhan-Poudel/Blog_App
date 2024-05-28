@@ -1,0 +1,32 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #2d3748; /* Dark gray background */
+    padding: 1rem 2rem;
+    color: white;
+    border-bottom: 2px solid #4a5568; /* Lighter gray border */
+  }
+  
+  .brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  .button {
+    background-color: #4299e1; /* Blue background */
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-left: 0.5rem; /* Add margin between buttons */
+  }
+  
+  .button:hover {
+    background-color: #3182ce; /* Darker blue background on hover */
+  }
+  

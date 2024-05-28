@@ -1,11 +1,11 @@
 import { Modal, Button } from "@mantine/core";
 
-const AlertModal = ({ opened, onClose, onConfirm }) => {
+const AlertModal = ({ opened, onClose, onConfirm, content }) => {
   const handleCancelButton = () => {
     onClose();
   };
 
-  const handleDeleteButton = () => {
+  const handleConfirmButton = () => {
     onConfirm();
     onClose();
   }
@@ -13,12 +13,12 @@ const AlertModal = ({ opened, onClose, onConfirm }) => {
   return (
     <Modal opened={opened} onClose={onClose} title="Confirm">
       <div>
-        <p>Are you sure you want to delete this item?</p>
+        <p>{content}</p>
         <Button onClick={handleCancelButton} style={{ marginRight: 10 }}>
           Cancel
         </Button>
-        <Button onClick={handleDeleteButton} color="red">
-          Delete
+        <Button onClick={handleConfirmButton} color="red">
+          Confirm
         </Button>
       </div>
     </Modal>

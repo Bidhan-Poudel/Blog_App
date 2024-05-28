@@ -1,52 +1,49 @@
 "use client";
-
-import { useState } from "react";
-import classes from "./navbar.module.css";
-import { Title } from "@mantine/core";
+import { useAuthContext } from "@/app/context/authContext";
+import { useRouter } from "next/navigation";
+import React from "react";
+import styles from "./nav.module.css";
 import Link from "next/link";
 
-const path = [
-  {
-    name: "Home",
-    url: "/",
-  },
-  {
-    name: "Dashboard",
-    url: "/dashboard",
-  },
-];
+const Navbar = () => {
+  const { isLoggedIn, onLogOut } = useAuthContext();
+  const router = useRouter();
 
-function Navbar(props) {
-  const [activeLink, setActiveLink] = useState(props.name);
+  const handleLogOut = () => {
+    onLogOut();
+    router.push("/");
+  };
 
-  const links = path.map((link) => (
-    <>
-      <Link
-        href={link.url}
-        className={classes.link}
-        onClick={(event) => {
-        //   event.preventDefault();
-          setActiveLink(link.name);
-        }}
-        key={link.url}
-      >
-        {link.name}
-      </Link>
-    </>
-  ));
+  const handleLogin = () => {
+    router.push("/login");
+  };
 
   return (
-    <nav className={classes.navbar}>
-      <div className={classes.wrapper}>
-        <div className={classes.main}>
-          <Title order={4} className={classes.title}>
-            {activeLink}
-          </Title>
-          {links}
-        </div>
+    <div className={styles.navbar}>
+      <div className={styles.brand} >
+        <Link href="/" style={{textDecoration:"none", color:"white"}}>Blog App</Link>
       </div>
-    </nav>
+      <div>
+        {isLoggedIn ? (
+          <>
+            <button
+              className={styles.button}
+              onClick={() => router.push("/dashboard")}
+            >
+              Dashboard
+            </button>
+            <button className={styles.button} onClick={handleLogOut}>
+              Log Out
+            </button>
+          </>
+        ) : (
+          <button className={styles.button} onClick={handleLogin}>
+            Log In
+          </button>
+        )}
+      </div>
+    </div>
   );
-}
+};
 
 export default Navbar;
