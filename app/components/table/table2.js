@@ -10,7 +10,7 @@ import {
   Button,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { IconTrash } from "@tabler/icons-react";
+import { IconPencil, IconTrash } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import AlertModal from "../modal/alert";
 import { useDisclosure } from "@mantine/hooks";
@@ -19,15 +19,17 @@ import CreateEditModal from "../modal/createEditModal";
 import { useAuthContext } from "@/app/context/authContext";
 import { useRouter } from "next/navigation";
 import styles from "./table.module.css";
+import Link from "next/link";
 
 export function PostsTable({ data }) {
   const router = useRouter();
-  const { isLoggedIn, user, isAdmin } = useAuthContext();
+  const { isLoggedIn,currentUser, isAdmin } = useAuthContext();
   const queryClient = useQueryClient();
   const [deleteId, setDeleteId] = useState(null);
   const [statusId, setStatusId] = useState(null);
   const [modalContent, setModalContent] = useState("");
   const [modalOpened, { open, close }] = useDisclosure(false);
+
 
   const { mutate: verifyStatus } = useMutation({
     mutationFn: verifyData,
@@ -107,7 +109,7 @@ export function PostsTable({ data }) {
 
   const userData = isAdmin
     ? data
-    : data.filter((item) => item.userId === user.id);
+    : data.filter((item) => item.userId === currentUser.id);
 
 
   const rows = userData?.map((item) => (
@@ -160,12 +162,9 @@ export function PostsTable({ data }) {
       </Table.Td>
       <Table.Td className={styles.centered}>
         <Group gap={0} justify="center">
-          <CreateEditModal
-            id={item.id}
-            initialTitle={item.title}
-            initialBody={item.body}
-            initialImage={item.image}
-          />
+          <Link href={`/blog/edit/${item.id}`}>
+            <IconPencil style={{ width: rem(16), height: rem(16) }} stroke={1.5} />
+          </Link>
           <ActionIcon
             variant="subtle"
             color="red"

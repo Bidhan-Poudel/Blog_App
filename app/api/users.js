@@ -24,7 +24,7 @@ export async function login({ email, password }) {
     const emailExistsResponse = await fetch(API_URL + `?email=${email}`);
     if (emailExistsResponse.ok) {
         const existingUser = await emailExistsResponse.json();
-        if (existingUser) {
+        if (existingUser.length > 0) {
             throw new Error("Email already exists");
         }
     } else {

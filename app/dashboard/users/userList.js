@@ -1,5 +1,5 @@
 'use client';
-import DashboardNavbar from "@/app/components/navbar/DashboardNavbar";
+import DashboardNavbar from "@/app/components/navbar/dashboardNavbar";
 import UsersTable from "@/app/components/table/usersTable";
 import React from "react";
 import classes from "../../components/navbar/navbar.module.css";

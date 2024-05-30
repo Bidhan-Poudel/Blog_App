@@ -17,14 +17,14 @@ export default function RootLayout({ children }) {
         <ColorSchemeScript />
       </head>
       <body>
-        <AuthProvider>
-          <ProvideQueryClient>
+        <ProvideQueryClient>
+          <AuthProvider>
             <MantineProvider>
               <Notifications />
               {children}
             </MantineProvider>
-          </ProvideQueryClient>
-        </AuthProvider>
+          </AuthProvider>
+        </ProvideQueryClient>
       </body>
     </html>
   );

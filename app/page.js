@@ -1,4 +1,4 @@
-import CardContainer from "./components/Container/CardContainer";
+import CardContainer from "./components/Container/cardContainer";
 import Navbar from "./components/navbar/navbar";
 
 export default function Home() {

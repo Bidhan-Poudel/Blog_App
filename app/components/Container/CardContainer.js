@@ -14,7 +14,7 @@ const CardContainer = (props) => {
   });
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error</div>;
-  const verifiedData= data.filter((item)=>item.status=='verified');
+  const verifiedData= data?.filter((item)=>item.status=='verified');
 
   return (
     <>

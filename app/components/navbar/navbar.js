@@ -1,17 +1,22 @@
 "use client";
 import { useAuthContext } from "@/app/context/authContext";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./nav.module.css";
 import Link from "next/link";
 
 const Navbar = () => {
-  const { isLoggedIn, onLogOut } = useAuthContext();
+  const { isLoggedIn, logoutUser } = useAuthContext();
   const router = useRouter();
 
   const handleLogOut = () => {
-    onLogOut();
-    router.push("/");
+    logoutUser();
+    router.replace("/");
+    
+    setTimeout(() => {
+      window.location.reload();
+    },1000);
+    // console.log(isLoggedIn);
   };
 
   const handleLogin = () => {

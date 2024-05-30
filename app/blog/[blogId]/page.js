@@ -4,14 +4,14 @@ import { Card, Container, Image, Text , AspectRatio} from '@mantine/core';
 import { useQuery } from '@tanstack/react-query'
 import React from 'react'
 
-const BlogDetail = ({params}) => {
+const BlogDetailPage = ({params}) => {
   
     const {data, isLoading, isError}= useQuery({
       queryFn:()=>getDataById(params.blogId),
       queryKey:["blog", params.blogId],
     });
     
-
+    // console.log(data);
     if(isLoading) return <div>Loading...</div>
     if(isError) return <div>Sorry!!! No Data Found</div>
     if(data.length === 0) return <div>No data found</div>
@@ -34,4 +34,4 @@ const BlogDetail = ({params}) => {
   )
 }
 
-export default BlogDetail
+export default BlogDetailPage;

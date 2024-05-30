@@ -21,9 +21,9 @@ function DashboardNavbar(props) {
     });
     
 
-  const links = path.map((link) => (
+  const links = path.map((link,index) => (
     <>
-      <Link href={link.url} className={classes.link} key={props.url}>
+      <Link href={link.url} className={classes.link} key={index}>
         {link.name}
       </Link>
     </>

@@ -2,12 +2,20 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { ROLES } from "../constants/role";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getUsers, login, register } from "../api/users";
 
 export const AuthContext = createContext();
 
 export const useAuthContext = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
+
+  
+
+  const queryClient = useQueryClient();
+  const [error, setError] = useState(null);
+
   const admin = {
     id: "1",
     email: "admin@example.com",
@@ -16,129 +24,71 @@ export const AuthProvider = ({ children }) => {
     role: ROLES.ADMIN,
   };
 
-  const [user, setUser] = useState({
-    email: "",
-    name: "",
-    password: "",
-    role: ROLES.USER,
+  const { data: users = [admin] } = useQuery({
+    queryKey: ["users"],
+    queryFn: getUsers,
   });
 
-  const [users, setUsers] = useState([admin]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const loginUser = useMutation({
+    mutationFn: login,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+      window.localStorage.setItem("currentUser", JSON.stringify(data));
+      setError(null);
+      console.log(`Logged in by ${data.email}`);
+    },
+    onError: (e) => {
+      setError(e.message);
+    },
+  });
 
-  useEffect(() => {
-    init();
-  }, []);
-
-  const init = () => {
-    try {
-      const usersList = window.localStorage.getItem("users");
+  const registerUser = useMutation({
+    mutationFn: register,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["users"],
+      });
+      setError(null);
+      console.log("Registered successfully");
+    },
+    onError: (e) => {
+      setError(e.message);
+    },
+  });
+  
+  const { data: currentUser } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: () => {
       const userString = window.localStorage.getItem("currentUser");
-
-      if (usersList) {
-        const userArray = JSON.parse(usersList);
-        setUsers(userArray);
-      }
-
       if (userString) {
-        const userObject = JSON.parse(userString);
-        setUser(userObject);
-        setIsLoggedIn(true);
+        return JSON.parse(userString);
       }
-      if (!userString) {
-        setIsLoggedIn(false);
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  const loginUser = ({ email, password }) => {
-    const user = users.find(
-      (usr) => usr.email === email && usr.password === password
-    );
-
-    if (!user) {
-      return {
-        error: "Invalid email or password",
-        success: false,
-      };
-    }
-
-    try {
-      window.localStorage.setItem("currentUser", JSON.stringify(user));
-      setUser(user);
-      setIsLoggedIn(true);
-      return {
-        success: true,
-      };
-    } catch (e) {
-      return {
-        error: e?.response?.data?.message ?? "Something went wrong",
-        success: false,
-      };
-    }
-  };
-
-  const registerUser = ({ email, password, name }) => {
-    if (users.some((usr) => usr.email === email)) {
-      return {
-        error: "User already exists",
-        success: false,
-      };
-    }
-
-    const role = ROLES.USER;
-
-    const newUser = {
-      id: users.length === 0 ? users.length + 2 : users.length + 1,
-      email,
-      password,
-      name,
-      role,
-    };
-    const updatedUserArray = [...users, newUser];
-
-    try {
-      window.localStorage.setItem("users", JSON.stringify(updatedUserArray));
-      setUsers(updatedUserArray);
-      return {
-        success: true,
-      };
-    } catch (e) {
-      return {
-        error: e?.response?.data?.message ?? "Something went wrong",
-        success: false,
-      };
-    }
-  };
-
-  const onLogOut = () => {
+      return null;
+    },
+  });
+  
+  const logoutUser = () => {
     window.localStorage.removeItem("currentUser");
-    setIsLoggedIn(false);
-    setUser({
-      email: "",
-      name: "",
-      password: "",
-      role: ROLES.USER,
-    })
+    queryClient.removeQueries({ queryKey: ["currentUser"] });
   };
 
-  const isAdmin = user.role === ROLES.ADMIN;
+
+  const isAdmin = currentUser?.role === ROLES.ADMIN;
+  const isLoggedIn = !!currentUser;
 
   return (
     <AuthContext.Provider
       value={{
         users,
-        setUsers,
-        user,
-        setUser,
-        isLoggedIn,
-        registerUser,
         loginUser,
+        registerUser,
+        currentUser,
+        isLoggedIn,
         isAdmin,
-        onLogOut,
+        logoutUser,
         admin,
+        error,
+        setError,
       }}
     >
       {children}

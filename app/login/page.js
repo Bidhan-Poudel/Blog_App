@@ -18,42 +18,13 @@ import { useAuthContext } from "../context/authContext";
 import { ROLES } from "../constants/role";
 import { useRouter } from "next/navigation";
 
-import { login, register } from "../api/users";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-
 const LoginSignUpPage = () => {
-  const queryClient = useQueryClient();
 
-  const { mutate: loginMutate } = useMutation({
-    mutationFn: login,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["users"],
-      });
-      console.log("Logged in");
-    },
-    onError: () => {
-      console.log("Error logging in");
-    },
-  });
-
-  const { mutate: registerMutate } = useMutation({
-    mutationFn: register,
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: ["users"],
-      });
-      console.log("Registered");
-      console.log(data);
-    },
-    onError: (e) => {
-      console.log(e);
-    },
-  });
-
-  const { registerUser, loginUser } = useAuthContext();
+  const { registerUser, loginUser, error, setError} = useAuthContext();
   const router = useRouter();
   const [type, toggle] = useToggle(["login", "register"]);
+
+
   const form = useForm({
     initialValues: {
       email: "",
@@ -70,21 +41,31 @@ const LoginSignUpPage = () => {
     },
   });
 
-  const handleSubmit = async (e) => {
+  const handleSubmit =  (e) => {
     e.preventDefault();
     if (type === "register") {
-      const res = await registerUser(form.values);
-      if (res.success) {
-        form.reset();
-        registerMutate(form.values);
-      }
+       registerUser.mutate(form.values,{
+          onSuccess:()=>{
+            form.reset();
+            setError("Registered successfully! Please login to continue.")
+          },
+          onError:(e)=>{
+            setError(e.message);
+          }
+       });
     } else {
-      const res = await loginUser(form.values);
-      if (res.success) {
-        form.reset();
-        loginMutate(form.values);
-        router.back();
-      }
+       loginUser.mutate(form.values,{
+        onSuccess:()=>{
+          form.reset();
+          router.replace("/");
+          setTimeout(()=>{
+            window.location.reload();
+          },500)
+        },
+        onError:(e)=>{
+          setError(e.message);
+        }
+       });
     }
   };
 
@@ -149,6 +130,7 @@ const LoginSignUpPage = () => {
               ]}
             />
           )}
+        {error && <Text>{error}</Text>} 
         </Stack>
 
         <Group justify="space-between" mt="xl">

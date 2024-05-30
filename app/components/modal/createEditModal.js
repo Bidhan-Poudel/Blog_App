@@ -95,6 +95,8 @@ function CreateEditModal(props) {
     setBody("");
     setImage(null);
     setBase64("");
+
+    router.replace('/dashboard');
   };
 
   const handleImageUpload = (file) => {

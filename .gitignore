@@ -13,6 +13,8 @@
 /.next/
 /out/
 
+/app/api/data.json
+
 # production
 /build
 
